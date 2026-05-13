@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeLeft</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div id="app-container">
+        <main>
+            <div id="input-container">
+                <input type="text" id="time-input" placeholder="分 または 時:分" autocomplete="off">
+            </div>
+            <button id="action-btn">Start</button>
+            <div id="bar-wrapper">
+                <div id="bar-fill"></div>
+                <div class="grid-overlay">
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                    <div class="grid-segment"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
