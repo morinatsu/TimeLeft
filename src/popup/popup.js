@@ -2,6 +2,7 @@ let timerInterval = null;
 let totalSeconds = 0;
 let remainingSeconds = 0;
 let lastSegment = 10;
+let endTime = 0;
 
 const elements = {
     input: document.getElementById('time-input'),
@@ -51,6 +52,7 @@ function startTimer() {
     if (totalSeconds <= 0) return;
     
     remainingSeconds = totalSeconds;
+    endTime = Date.now() + totalSeconds * 1000;
     
     // UIの切り替え
     elements.input.readOnly = true;
@@ -70,7 +72,8 @@ function startTimer() {
     }, 50);
 
     timerInterval = setInterval(() => {
-        remainingSeconds--;
+        remainingSeconds = Math.round((endTime - Date.now()) / 1000);
+        if (remainingSeconds < 0) remainingSeconds = 0;
         updateUI();
 
         if (remainingSeconds <= 0) {
