@@ -1,8 +1,8 @@
 let timerInterval = null;
 let totalSeconds = 0;
 let remainingSeconds = 0;
-let lastSegment = 10;
 let endTime = 0;
+let warningNotified = false;
 
 const elements = {
     input: document.getElementById('time-input'),
@@ -63,7 +63,8 @@ function startTimer() {
     elements.barFill.style.width = '100%';
     elements.barFill.style.background = 'hsl(120, 84%, 60%)'; // 初期色は緑
     
-    lastSegment = 10;
+    warningNotified = false;
+    document.title = "TimeLeft";
     document.body.classList.remove('warning-flash');
 
     // 初回の表示更新（少し遅延させてトランジションを効かせる）
@@ -82,6 +83,14 @@ function startTimer() {
             elements.input.value = '0 分';
             elements.barFill.style.width = '0%';
             elements.barFill.style.background = '#ef4444'; // red-500
+            
+            document.title = "0! - TimeLeft";
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: '../icons/icon128.png',
+                title: 'TimeLeft',
+                message: '時間になりました！'
+            });
         }
     }, 1000);
 }
@@ -100,6 +109,8 @@ function resetTimer() {
     elements.barFill.style.width = '0%';
     elements.barFill.style.background = 'transparent';
     document.body.classList.remove('warning-flash');
+    document.title = "TimeLeft";
+    warningNotified = false;
 }
 
 function updateUI() {
@@ -113,25 +124,32 @@ function updateUI() {
     const ratio = remainingSeconds / totalSeconds;
     elements.barFill.style.width = `${ratio * 100}%`;
 
-    // 10%単位の節目で最前面へ
-    const currentSegment = Math.ceil(ratio * 10);
-    if (currentSegment < lastSegment) {
-        lastSegment = currentSegment;
-        if (chrome && chrome.windows) {
-            chrome.windows.getCurrent((win) => {
-                chrome.windows.update(win.id, { focused: true });
-            });
-        }
-    }
-
-    // 残り1割以下で警告アニメーション
-    if (ratio <= 0.1) {
-        document.body.classList.add('warning-flash');
+    // ウィンドウタイトルの更新 (タスクバー表示用)
+    let timeText = '';
+    if (remainingSeconds >= 60) {
+        timeText = Math.ceil(remainingSeconds / 60) + 'm';
     } else {
-        document.body.classList.remove('warning-flash');
+        timeText = remainingSeconds + 's';
     }
+    document.title = `${timeText} - TimeLeft`;
 
     // HSLで色を計算: 緑(120) から 赤(0) へグラデーション
     const hue = ratio * 120;
     elements.barFill.style.background = `hsl(${hue}, 84%, 60%)`;
+
+    // 残り1割以下で警告アニメーションと通知
+    if (ratio <= 0.1) {
+        document.body.classList.add('warning-flash');
+        if (!warningNotified) {
+            warningNotified = true;
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: '../icons/icon128.png',
+                title: 'TimeLeft - 警告',
+                message: '残り時間が10%を切りました！'
+            });
+        }
+    } else {
+        document.body.classList.remove('warning-flash');
+    }
 }
